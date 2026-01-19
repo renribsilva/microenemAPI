@@ -1,24 +1,29 @@
-# Usa imagem estável do R
-FROM rocker/r-ver:4.3.0
+ARG R_VERSION=latest
+FROM rocker/r-ver:${R_VERSION}
 
-# Instala dependências do sistema
-RUN apt-get update -qq && apt-get install -y \
+# 1. Instalação de dependências do sistema
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+    git-core \
     libssl-dev \
     libcurl4-gnutls-dev \
+    curl \
+    libsodium-dev \
     libxml2-dev \
-    && apt-get clean
+    && rm -rf /var/lib/apt/lists/*
 
-# Define o diretório de trabalho
+# 2. Instalação do Plumber via pak (mais rápido)
+RUN R -e "install.packages('pak', repos='https://r-lib.github.io/p/pak/dev/')"
+RUN Rscript -e "pak::pkg_install('plumber')"
+
+# 3. Preparação do diretório de trabalho
 WORKDIR /app
+COPY . /app
 
-# Instala o pacote plumber
-RUN R -e "install.packages('plumber', repos='https://cran.r-project.org')"
-
-# Copia todos os arquivos da pasta local para o container
-COPY . .
-
-# Expõe a porta da API
+# 4. Ajuste de porta para o Render
+# O Render muitas vezes usa a porta 10000, mas a 8080 é o padrão seguro. 
+# Vamos fixar em 8080.
 EXPOSE 8080
 
-# Comando para iniciar a API
-CMD ["R", "-e", "pr <- plumber::plumb('plumber.R'); pr$run(host='0.0.0.0', port=8080)"]
+# 5. ENTRYPOINT simplificado e direto
+# Note que apontamos diretamente para o seu /app/plumber.R
+ENTRYPOINT ["R", "-e", "pr <- plumber::plumb('/app/plumber.R'); pr$run(host='0.0.0.0', port=8080)"]
