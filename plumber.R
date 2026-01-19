@@ -8,6 +8,7 @@
 #* @param lingua Tipo de lingua (0=Inglês, 1=Espanhol)
 #* @get /calc
 function(sample, area, ano, codigo, lingua) {
+  
   tryCatch({
     
     dir_base <- dirname(normalizePath("plumber.R"))
@@ -18,62 +19,79 @@ function(sample, area, ano, codigo, lingua) {
     load(file.path(dir_base, paste0(nome_itens, ".rda")))
     itens_db_total <- get(nome_itens)
     
-    cod_prova <- codigo
-    tp_lingua <- as.numeric(lingua)
-    
-    # Grade de theta
-    theta <- seq(-4, 4, length.out = 100)  # mais pontos para precisão
+    theta <- seq(-4, 4, length.out = 40)
     cci_3pl <- function(theta, a, b, c) c + ((1 - c) / (1 + exp(-a * (theta - b))))
     p_theta <- stats::dnorm(theta, mean = 0, sd = 1)
     
-    # Converte string em vetor numérico
+    prod_prob <- list()
+    
+    # 1. PEGA O BANCO DO CADERNO E ORDENA
+    pars <- itens_db_total[itens_db_total$CO_PROVA == codigo, ]
+    
+    if (nrow(pars) == 0) { prod_prob <- NULL; next }
+    
+    if (area == "LC") {
+      if (lingua == 1) { # ESPANHOL
+        # manter apenas TP_LINGUA != 0 e não NA
+        pars <- pars[(pars$TP_LINGUA == 1 | is.na(pars$TP_LINGUA)), ]
+      } else { # INGLÊS
+        # manter apenas TP_LINGUA != 1 e não NA
+        pars <- pars[(pars$TP_LINGUA == 0 | is.na(pars$TP_LINGUA)), ]
+      }
+    }
+    
+    # Ordenação inicial para garantir Inglês/Espanhol
+    if (ano > 2009) {
+      pars <- pars[base::order(pars$TP_LINGUA, pars$CO_POSICAO), ]
+    } else {
+      pars <- pars[base::order(pars$CO_POSICAO), ]
+    }
+    
+    # 3. REMOÇÃO DE ITENS ANULADOS (IN_ITEM_ABAN == 1)
+    # Identificamos quais posições da string/score devem sumir
+    idx_anulados <- which(pars$IN_ITEM_ABAN == 1)
+    
+    # Converte a string em vetor numérico
     score_i <- as.numeric(strsplit(sample, "")[[1]])
     
-    # Seleciona itens do caderno
-    pars <- itens_db_total[itens_db_total$CO_PROVA == cod_prova, ]
-    if (nrow(pars) == 0) stop("Caderno não encontrado")
+    # Transforma em matriz 1 linha x 45 colunas
+    score_i <- matrix(score_i, nrow = 1)
     
-    # Ordena itens
-    if (ano > 2009) pars <- pars[order(pars$TP_LINGUA, pars$CO_POSICAO), ]
-    else pars <- pars[order(pars$CO_POSICAO), ]
-    
-    # Filtra língua
-    if (area == "LC") {
-      if (tp_lingua == 1) pars <- pars[pars$TP_LINGUA != 0, ]
-      else pars <- pars[pars$TP_LINGUA != 1, ]
-    }
-    
-    # Remove itens anulados
-    idx_anulados <- which(pars$IN_ITEM_ABAN == 1)
     if (length(idx_anulados) > 0) {
-      score_i <- score_i[-idx_anulados]
-      pars <- pars[-idx_anulados, ]
+      score_i <- score_i[-idx_anulados] # Remove do score
+      pars <- pars[-idx_anulados, ]     # Remove do banco
     }
     
-    # Calcula log-verossimilhança para estabilidade numérica
+    # 4. CÁLCULO DA LIKELIHOOD (LINHA POR LINHA)
     n_itens <- min(length(score_i), nrow(pars))
-    logL <- rep(0, length(theta))
-    for (q in 1:n_itens) {
+    list_probs <- lapply(1:n_itens, function(q) {
       res <- score_i[q]
       p_item <- pars[q, ]
-      if (is.na(res) || is.na(p_item$NU_PARAM_A)) next
+      
+      # Se o item não tem parâmetro ou a resposta é inválida, probabilidade neutra (1)
+      if (is.na(res) || is.na(p_item$NU_PARAM_A)) return(rep(1, length(theta)))
+      
       p1 <- cci_3pl(theta, p_item$NU_PARAM_A, p_item$NU_PARAM_B, p_item$NU_PARAM_C)
-      p1 <- pmin(pmax(p1, 1e-10), 1 - 1e-10)  # evita log(0)
-      logL <- logL + if (res == 1) log(p1) else log(1 - p1)
-    }
-    L_theta <- exp(logL)
+      return(if (res == 1) p1 else (1 - p1))
+    })
     
-    # Posterior
-    posterior <- L_theta * p_theta
-    posterior <- posterior / sum(posterior)
+    prod_prob <- list(Reduce(`*`, list_probs))
     
-    # EAP
-    theta_EAP <- sum(theta * posterior)
-    k_val <- constantes[constantes$area == area, "k"]
-    d_val <- constantes[constantes$area == area, "d"]
+    # 5. EAP E TRANSFORMAÇÃO
+    # Remove nulos (casos onde o caderno não foi encontrado)
+    prod_prob <- prod_prob[!sapply(prod_prob, is.null)]
+    
+    theta_EAP <- sapply(prod_prob, function(L_theta) {
+      posterior <- L_theta * p_theta
+      posterior <<- posterior
+      sum(theta * posterior) / sum(posterior)
+    })
+    
+    k_val <- constantes[constantes$area == area, 'k']
+    d_val <- constantes[constantes$area == area, 'd']
+    
     eap_transf <- round(theta_EAP * k_val + d_val, 1)
     
-    # Retorna curva + EAP
     list(
       theta = theta,
       posterior = posterior,
