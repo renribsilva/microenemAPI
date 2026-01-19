@@ -3,7 +3,7 @@
     "path": "~/Área de trabalho/DEV/R/microenemAPI/Dockerfile",
     "project_path": "Dockerfile",
     "type": "dockerfile",
-    "hash": "0",
+    "hash": "119947656",
     "contents": "",
     "dirty": false,
     "created": 1768840823557.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "9,11",
+        "cursorPosition": "14,0",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1768840867,
+    "lastKnownWriteTime": 1768842556,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1768840867684,
+    "last_content_update": 1768842556623,
     "read_only": false,
     "read_only_alternatives": []
 }
