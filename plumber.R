@@ -10,9 +10,12 @@
 
 function(sample, area, ano, codigo, lingua) {
   tryCatch({
-    load("constantes.rda")
-    nome_itens <- paste0("itens_", ano)
-    load(nome_itens)
+    
+    dir_base <- dirname(normalizePath("plumber.R"))
+    
+    # carrega arquivos com caminho absoluto
+    load(file.path(dir_base, "constantes.rda"))
+    load(file.path(dir_base, paste0("itens_", ano, ".rda")))
     itens_db_total <- get(nome_itens)
     
     cod_prova <- codigo
