@@ -1,29 +1,26 @@
-ARG R_VERSION=latest
-FROM rocker/r-ver:${R_VERSION}
+# Source - https://stackoverflow.com/a
+# Posted by Kevin Ushey, modified by community. See post 'Timeline' for change history
+# Retrieved 2026-01-19, License - CC BY-SA 4.0
 
-# 1. Instalação de dependências do sistema
-RUN apt-get update -qq && apt-get install -y --no-install-recommends \
-    git-core \
-    libssl-dev \
-    libcurl4-gnutls-dev \
-    curl \
-    libsodium-dev \
-    libxml2-dev \
-    && rm -rf /var/lib/apt/lists/*
+FROM rocker/r-ver:4.0.2
 
-# 2. Instalação do Plumber via pak (mais rápido)
-RUN R -e "install.packages('pak', repos='https://r-lib.github.io/p/pak/dev/')"
-RUN Rscript -e "pak::pkg_install('plumber')"
+# install the linux libraries needed for plumber
+RUN apt-get update -qq && apt-get install -y \
+  libssl-dev \
+  libcurl4-gnutls-dev
 
-# 3. Preparação do diretório de trabalho
-WORKDIR /app
-COPY . /app
+# create the application folder
+RUN mkdir -p ~/application
 
-# 4. Ajuste de porta para o Render
-# O Render muitas vezes usa a porta 10000, mas a 8080 é o padrão seguro. 
-# Vamos fixar em 8080.
-EXPOSE 8080
+# copy everything from the current directory into the container
+COPY "/" "application/"
+WORKDIR "application/" 
 
-# 5. ENTRYPOINT simplificado e direto
-# Note que apontamos diretamente para o seu /app/plumber.R
-ENTRYPOINT ["R", "-e", "pr <- plumber::plumb('/app/plumber.R'); pr$run(host='0.0.0.0', port=8080)"]
+# open port 80 to traffic
+EXPOSE 80
+
+# install plumber
+RUN R -e "install.packages('plumber')"
+
+# when the container starts, start the main.R script
+ENTRYPOINT ["Rscript", "plumber.R"]
