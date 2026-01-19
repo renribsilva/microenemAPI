@@ -1,26 +1,23 @@
-# Source - https://stackoverflow.com/a
-# Posted by Kevin Ushey, modified by community. See post 'Timeline' for change history
-# Retrieved 2026-01-19, License - CC BY-SA 4.0
-
 FROM rocker/r-ver:4.0.2
 
-# install the linux libraries needed for plumber
+# 1. Instala dependências do sistema
 RUN apt-get update -qq && apt-get install -y \
-  libssl-dev \
-  libcurl4-gnutls-dev
+    libssl-dev \
+    libcurl4-gnutls-dev \
+    libsodium-dev \
+    libxml2-dev
 
-# create the application folder
-RUN mkdir -p ~/application
-
-# copy everything from the current directory into the container
-COPY "/" "application/"
-WORKDIR "application/" 
-
-# open port 80 to traffic
-EXPOSE 80
-
-# install plumber
+# 2. Instala o pacote plumber
 RUN R -e "install.packages('plumber')"
 
-# when the container starts, start the main.R script
-ENTRYPOINT ["Rscript", "plumber.R"]
+# 3. Organiza os arquivos (evite usar '~/', use caminhos absolutos no Docker)
+WORKDIR /app
+COPY . /app
+
+# 4. Define a porta. O Render trabalha bem com a 8080 ou 10000. 
+# Importante: o EXPOSE aqui deve bater com o port no comando final.
+EXPOSE 8080
+
+# 5. O PONTO CHAVE: O comando deve "instanciar" e "rodar" o plumber
+# host '0.0.0.0' é obrigatório para ser acessível fora do container.
+CMD ["R", "-e", "pr <- plumber::plumb('/app/plumber.R'); pr$run(host='0.0.0.0', port=8080)"]
