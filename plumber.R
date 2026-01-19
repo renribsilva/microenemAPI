@@ -1,5 +1,4 @@
 # plumber.R
-source("functions.R")
 
 #* Calcula EAP e retorna curva
 #* @param sample String binário de 0 e 1
