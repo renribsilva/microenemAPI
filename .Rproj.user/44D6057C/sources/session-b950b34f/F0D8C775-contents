@@ -1,4 +1,5 @@
-FROM rocker/r-ver:4.0.2
+# Usa a última versão estável do R
+FROM rocker/r-ver:latest
 
 # 1. Instala dependências do sistema
 RUN apt-get update -qq && apt-get install -y \
