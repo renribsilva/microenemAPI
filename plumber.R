@@ -92,10 +92,13 @@ function(sample, area, ano, codigo, lingua) {
     
     eap_transf <- round(theta_EAP * k_val + d_val, 1)
     
+    log_likelihood <- log(prod_prob[[1]] + 1e-300)
+    
     list(
       theta = theta,
-      posterior = posterior,
-      eap = eap_transf
+      posterior = log_likelihood, # Substituindo a escala para o gráfico
+      eap = eap_transf,
+      theta_eap = theta_EAP      # Útil para marcar a linha vertical no gráfico
     )
     
   }, error = function(e) {
