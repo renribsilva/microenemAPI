@@ -125,6 +125,8 @@ function(sample, area, ano, codigo, lingua) {
       return(round(nova_nota - original_score_transf, 2))
     })
     
+    names(impacto_array) <- pars$CO_ITEM[1:n_itens]
+    
     list(
       theta = theta,
       posterior = log_likelihood, # Substituindo a escala para o gráfico
