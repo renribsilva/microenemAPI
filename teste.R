@@ -94,24 +94,19 @@ calc <- function(sample, area, ano, codigo, lingua) {
       return(th_eap * k_val + d_val)
     }
     
-    original_score_transf <- eap_transf # Nota original já calculada
+    original_score_transf <- eap_transf 
+    
     impacto_array <- sapply(1:n_itens, function(i) {
-      
-      # Cria uma cópia da lista de probabilidades
-      temp_probs <- list_probs
-      
-      # Pega o parâmetro do item atual
       p_item <- pars[i, ]
-      if (is.na(p_item$NU_PARAM_A)) return(0) # Se item inválido, impacto zero
       
-      # Inverte a resposta: se era 1 vira 0, se era 0 vira 1
+      if (is.na(p_item$NU_PARAM_A)) return(NA) 
+      
+      temp_probs <- list_probs
       new_res <- if (score_i[i] == 1) 0 else 1
       
-      # Calcula a nova probabilidade para esse item específico
       p1 <- cci_3pl(theta, p_item$NU_PARAM_A, p_item$NU_PARAM_B, p_item$NU_PARAM_C)
       temp_probs[[i]] <- if (new_res == 1) p1 else (1 - p1)
       
-      # Calcula a nova nota e subtrai da original
       nova_nota <- calc_eap_internal(temp_probs)
       return(round(nova_nota - original_score_transf, 2))
     })
