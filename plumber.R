@@ -104,39 +104,39 @@ function(sample, area, ano, codigo, lingua) {
     }
     
     original_score_transf <- eap_transf # Nota original já calculada
-    impacto_array <- sapply(1:n_itens, function(i) {
+    impacto_individual <- lapply(1:n_itens, function(i) {
       
-      # Cria uma cópia da lista de probabilidades
-      temp_probs <- list_probs
+      # Pega o código do item para servir de nome e o parâmetro para o cálculo
+      id_item <- as.character(pars$CO_ITEM[i])
+      p_item  <- pars[i, ]
       
-      # Pega o parâmetro do item atual
-      p_item <- pars[i, ]
-      if (is.na(p_item$NU_PARAM_A)) return(NA) # Se item inválido, impacto zero
+      # Se o item não tem parâmetro (anulado/inválido)
+      if (is.na(p_item$NU_PARAM_A)) {
+        val <- NA
+      } else {
+        # Inverte a resposta e recalcula a nota
+        temp_probs <- list_probs
+        new_res <- if (score_i[i] == 1) 0 else 1
+        p1 <- cci_3pl(theta, p_item$NU_PARAM_A, p_item$NU_PARAM_B, p_item$NU_PARAM_C)
+        temp_probs[[i]] <- if (new_res == 1) p1 else (1 - p1)
+        
+        nova_nota <- calc_eap_internal(temp_probs)
+        val <- round(nova_nota - original_score_transf, 2)
+      }
       
-      # Inverte a resposta: se era 1 vira 0, se era 0 vira 1
-      new_res <- if (score_i[i] == 1) 0 else 1
-      
-      # Calcula a nova probabilidade para esse item específico
-      p1 <- cci_3pl(theta, p_item$NU_PARAM_A, p_item$NU_PARAM_B, p_item$NU_PARAM_C)
-      temp_probs[[i]] <- if (new_res == 1) p1 else (1 - p1)
-      
-      # Calcula a nova nota e subtrai da original
-      nova_nota <- calc_eap_internal(temp_probs)
-      return(round(nova_nota - original_score_transf, 2))
+      # Retorna o valor nomeado para que o lapply monte a lista identificada
+      setNames(list(val), id_item)
     })
     
-    # ATRIBUI OS NOMES
-    names(impacto_array) <- pars$CO_ITEM[1:n_itens]
-    
-    # CONVERTE PARA LISTA PARA FORÇAR O JSON A MANTER AS CHAVES (IDENTIFICAÇÃO)
-    impacto_list <- as.list(impacto_array)
+    # Flatten para transformar em um único objeto JSON { "ID": VALOR }
+    impacto_individual <- unlist(impacto_individual, recursive = FALSE)
     
     list(
       theta = theta,
       posterior = log_likelihood, # Substituindo a escala para o gráfico
       eap = eap_transf,
       theta_eap = theta_EAP,
-      impacto_individual = impacto_list
+      impacto_individual = impacto_individual
     )
     
   }, error = function(e) {
