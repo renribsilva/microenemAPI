@@ -83,10 +83,45 @@ calc <- function(sample, area, ano, codigo, lingua) {
     
     eap_transf <- round(theta_EAP * k_val + d_val, 1)
     
+    log_likelihood <- log(prod_prob[[1]] + 1e-300)
+    
+    # --- CÁLCULO DO IMPACTO MARGINAL (DIFERENÇA DE NOTA) ---
+    # Função interna rápida para calcular o EAP a partir de uma lista de probabilidades
+    calc_eap_internal <- function(probs_list) {
+      L_theta <- Reduce(`*`, probs_list)
+      post <- L_theta * p_theta
+      th_eap <- sum(theta * post) / sum(post)
+      return(th_eap * k_val + d_val)
+    }
+    
+    original_score_transf <- eap_transf # Nota original já calculada
+    impacto_array <- sapply(1:n_itens, function(i) {
+      
+      # Cria uma cópia da lista de probabilidades
+      temp_probs <- list_probs
+      
+      # Pega o parâmetro do item atual
+      p_item <- pars[i, ]
+      if (is.na(p_item$NU_PARAM_A)) return(0) # Se item inválido, impacto zero
+      
+      # Inverte a resposta: se era 1 vira 0, se era 0 vira 1
+      new_res <- if (score_i[i] == 1) 0 else 1
+      
+      # Calcula a nova probabilidade para esse item específico
+      p1 <- cci_3pl(theta, p_item$NU_PARAM_A, p_item$NU_PARAM_B, p_item$NU_PARAM_C)
+      temp_probs[[i]] <- if (new_res == 1) p1 else (1 - p1)
+      
+      # Calcula a nova nota e subtrai da original
+      nova_nota <- calc_eap_internal(temp_probs)
+      return(round(nova_nota - original_score_transf, 2))
+    })
+    
     list(
       theta = theta,
-      posterior = posterior,
-      eap = eap_transf
+      posterior = log_likelihood, # Substituindo a escala para o gráfico
+      eap = eap_transf,
+      theta_eap = theta_EAP,
+      impacto_individual = impacto_array
     )
     
   }, error = function(e) {
