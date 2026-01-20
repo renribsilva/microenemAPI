@@ -125,14 +125,18 @@ function(sample, area, ano, codigo, lingua) {
       return(round(nova_nota - original_score_transf, 2))
     })
     
+    # ATRIBUI OS NOMES
     names(impacto_array) <- pars$CO_ITEM[1:n_itens]
+    
+    # CONVERTE PARA LISTA PARA FORÇAR O JSON A MANTER AS CHAVES (IDENTIFICAÇÃO)
+    impacto_list <- as.list(impacto_array)
     
     list(
       theta = theta,
       posterior = log_likelihood, # Substituindo a escala para o gráfico
       eap = eap_transf,
       theta_eap = theta_EAP,
-      impacto_individual = impacto_array
+      impacto_individual = impacto_list
     )
     
   }, error = function(e) {
