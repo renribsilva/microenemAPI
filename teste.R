@@ -49,8 +49,8 @@ calc <- function(sample, area, ano, codigo, lingua) {
     score_i <- matrix(score_i, nrow = 1)
     
     # if (length(idx_anulados) > 0) {
-    #   score_i <- score_i[-idx_anulados]
-    #   pars <- pars[-idx_anulados, ]
+    #   score_i <- score_i[-idx_anulados] # Remove do score
+    #   pars <- pars[-idx_anulados, ]     # Remove do banco
     # }
     
     # 4. CÁLCULO DA LIKELIHOOD (LINHA POR LINHA)
@@ -58,8 +58,10 @@ calc <- function(sample, area, ano, codigo, lingua) {
     list_probs <- lapply(1:n_itens, function(q) {
       res <- score_i[q]
       p_item <- pars[q, ]
+      
       # Se o item não tem parâmetro ou a resposta é inválida, probabilidade neutra (1)
-      if (is.na(p_item$NU_PARAM_A)) return(rep(1, length(theta)))
+      if (is.na(res) || is.na(p_item$NU_PARAM_A)) return(rep(1, length(theta)))
+      
       p1 <- cci_3pl(theta, p_item$NU_PARAM_A, p_item$NU_PARAM_B, p_item$NU_PARAM_C)
       return(if (res == 1) p1 else (1 - p1))
     })
@@ -93,16 +95,14 @@ calc <- function(sample, area, ano, codigo, lingua) {
     }
     
     original_score_transf <- eap_transf # Nota original já calculada
-    
     impacto_array <- sapply(1:n_itens, function(i) {
       
       # Cria uma cópia da lista de probabilidades
       temp_probs <- list_probs
-      print(temp_probs)
       
       # Pega o parâmetro do item atual
       p_item <- pars[i, ]
-      if (is.na(p_item$NU_PARAM_A)) return(NA) # Se item inválido, impacto zero
+      if (is.na(p_item$NU_PARAM_A)) return(0) # Se item inválido, impacto zero
       
       # Inverte a resposta: se era 1 vira 0, se era 0 vira 1
       new_res <- if (score_i[i] == 1) 0 else 1

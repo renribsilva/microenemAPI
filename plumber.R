@@ -57,10 +57,10 @@ function(sample, area, ano, codigo, lingua) {
     # Transforma em matriz 1 linha x 45 colunas
     score_i <- matrix(score_i, nrow = 1)
     
-    if (length(idx_anulados) > 0) {
-      score_i <- score_i[-idx_anulados] # Remove do score
-      pars <- pars[-idx_anulados, ]     # Remove do banco
-    }
+    # if (length(idx_anulados) > 0) {
+    #   score_i <- score_i[-idx_anulados] # Remove do score
+    #   pars <- pars[-idx_anulados, ]     # Remove do banco
+    # }
     
     # 4. CÁLCULO DA LIKELIHOOD (LINHA POR LINHA)
     n_itens <- min(length(score_i), nrow(pars))
