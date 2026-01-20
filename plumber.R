@@ -106,15 +106,13 @@ function(sample, area, ano, codigo, lingua) {
     original_score_transf <- eap_transf # Nota original já calculada
     impacto_individual <- lapply(1:n_itens, function(i) {
       
-      # Pega o código do item para servir de nome e o parâmetro para o cálculo
       id_item <- as.character(pars$CO_ITEM[i])
       p_item  <- pars[i, ]
+      posicao <- pars$CO_POSICAO[i] # Pega a posição real do banco
       
-      # Se o item não tem parâmetro (anulado/inválido)
       if (is.na(p_item$NU_PARAM_A)) {
         val <- NA
       } else {
-        # Inverte a resposta e recalcula a nota
         temp_probs <- list_probs
         new_res <- if (score_i[i] == 1) 0 else 1
         p1 <- cci_3pl(theta, p_item$NU_PARAM_A, p_item$NU_PARAM_B, p_item$NU_PARAM_C)
@@ -124,11 +122,12 @@ function(sample, area, ano, codigo, lingua) {
         val <- round(nova_nota - original_score_transf, 2)
       }
       
-      # Retorna o valor nomeado para que o lapply monte a lista identificada
-      setNames(list(val), id_item)
+      # ESTRUTURA: Retorna uma lista com posicao e valor
+      res_list <- list(list(posicao = posicao, valor = val))
+      setNames(res_list, id_item)
     })
     
-    # Flatten para transformar em um único objeto JSON { "ID": VALOR }
+    # Flatten para transformar em um objeto JSON { "CO_ITEM": {posicao: x, valor: y}, ... }
     impacto_individual <- unlist(impacto_individual, recursive = FALSE)
     
     list(
