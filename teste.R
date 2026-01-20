@@ -102,7 +102,7 @@ calc <- function(sample, area, ano, codigo, lingua) {
       
       # Pega o parâmetro do item atual
       p_item <- pars[i, ]
-      if (is.na(p_item$NU_PARAM_A)) return(0) # Se item inválido, impacto zero
+      if (is.na(p_item$NU_PARAM_A)) return(NA) # Se item inválido, impacto zero
       
       # Inverte a resposta: se era 1 vira 0, se era 0 vira 1
       new_res <- if (score_i[i] == 1) 0 else 1
