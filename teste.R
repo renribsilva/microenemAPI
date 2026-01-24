@@ -18,25 +18,37 @@ calc <- function(sample, area, ano, codigo, lingua) {
     
     # 1. PEGA O BANCO DO CADERNO E ORDENA
     pars <- itens_db_total[itens_db_total$CO_PROVA == codigo, ]
+    print(pars)
     
     if (nrow(pars) == 0) { prod_prob <- NULL; next }
     
     if (area == "LC") {
       if (lingua == 1) { # ESPANHOL
-        # manter apenas TP_LINGUA != 0 e não NA
-        pars <- pars[(pars$TP_LINGUA == 1 | is.na(pars$TP_LINGUA)), ]
+        if ("TP_VERSAO_DIGITAL" %in% names(pars)) {
+          if (all(is.na(unique(pars$TP_VERSAO_DIGITAL)))) {
+            pars <- pars[(pars$TP_LINGUA == 0 | is.na(pars$TP_LINGUA)), ]
+          } else {
+            pars <- pars[pars$TP_VERSAO_DIGITAL == 1, ] 
+          }
+        } else {
+          pars <- pars[(pars$TP_LINGUA == 1 | is.na(pars$TP_LINGUA)), ] 
+        }
       } else { # INGLÊS
-        # manter apenas TP_LINGUA != 1 e não NA
-        pars <- pars[(pars$TP_LINGUA == 0 | is.na(pars$TP_LINGUA)), ]
+        if ("TP_VERSAO_DIGITAL" %in% names(pars)) {
+          if (all(is.na(unique(pars$TP_VERSAO_DIGITAL)))) {
+            pars <- pars[(pars$TP_LINGUA == 0 | is.na(pars$TP_LINGUA)), ]
+          } else {
+            pars <- pars[pars$TP_VERSAO_DIGITAL == 0, ] 
+          }
+        } else {
+          pars <- pars[(pars$TP_LINGUA == 0 | is.na(pars$TP_LINGUA)), ]
+        } 
       }
     }
     
-    # Ordenação inicial para garantir Inglês/Espanhol
-    if (ano > 2009) {
-      pars <- pars[base::order(pars$TP_LINGUA, pars$CO_POSICAO), ]
-    } else {
-      pars <- pars[base::order(pars$CO_POSICAO), ]
-    }
+    if (nrow(pars) != 45) stop ("Falha na seleção dos itens")
+    pars <- pars[order(pars$TP_LINGUA, pars$CO_POSICAO), ]
+    print(pars)
     
     # 3. REMOÇÃO DE ITENS ANULADOS (IN_ITEM_ABAN == 1)
     # Identificamos quais posições da string/score devem sumir
@@ -132,8 +144,8 @@ calc <- function(sample, area, ano, codigo, lingua) {
 }
 
 sample <- "000000000000000000000000000000000000000000000"
-ano <- 2019
-codigo <- 511
+ano <- 2020
+codigo <- 577
 lingua <- 0
 area <- "LC"
 
