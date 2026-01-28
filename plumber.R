@@ -71,7 +71,14 @@ function(sample, area, ano, codigo, lingua) {
     score_i <- as.numeric(strsplit(sample, "")[[1]])
     score_i <- matrix(score_i, nrow = 1)
     
-    n_itens <- min(length(score_i), nrow(pars))
+    if (length(score_i) != 45) {
+      stop(paste("O sample enviado tem tamanho", length(score_i), "mas o esperado é 45."))
+    }
+    if (nrow(pars) != 45) {
+      stop(paste("Foram encontrados", nrow(pars), "itens para esta prova, mas o esperado é 45."))
+    }
+    
+    n_itens <- 45
     list_probs <- lapply(1:n_itens, function(q) {
       res <- score_i[q]
       p_item <- pars[q, ]
