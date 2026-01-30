@@ -144,10 +144,11 @@ calc <- function(sample, area, ano, codigo, lingua) {
 }
 
 sample <- "000000000000000000000000000000000000000000000"
-ano <- 2020
-codigo <- 577
+sample <- "110111111010101111010110011101010111001101010"
+ano <- 2019
+codigo <- 516
 lingua <- 0
-area <- "LC"
+area <- "MT"
 
 calc(sample = sample, area = area, ano = ano, codigo = codigo, lingua = lingua)
 
