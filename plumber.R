@@ -205,4 +205,3 @@ function(sample, area, ano, codigo, lingua) {
     }
   )
 }
-
