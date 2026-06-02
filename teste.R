@@ -6,11 +6,6 @@ calc <- function(sample, area, ano, codigo, lingua) {
       codigo <- as.numeric(codigo)
       lingua <- as.numeric(lingua)
 
-      # Anomalia no caderno de itens do ano de 2024
-      if (ano == 2024) {
-        lingua <- 1 - lingua
-      }
-
       # Define o diretório base
       dir_base <- dirname(normalizePath("plumber.R"))
 
