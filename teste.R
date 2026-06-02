@@ -6,6 +6,11 @@ calc <- function(sample, area, ano, codigo, lingua) {
       codigo <- as.numeric(codigo)
       lingua <- as.numeric(lingua)
 
+      # Anomalia no caderno de itens do ano de 2024
+      if (ano == 2024) {
+        lingua <- 1 - lingua
+      }
+
       # Define o diretório base
       dir_base <- dirname(normalizePath("plumber.R"))
 
@@ -91,6 +96,7 @@ calc <- function(sample, area, ano, codigo, lingua) {
         ))
       }
 
+      print(pars)
       n_itens <- 45
 
       # Para cada item válido da prova, retorna um vetor com
@@ -190,11 +196,14 @@ calc <- function(sample, area, ano, codigo, lingua) {
   )
 }
 
+setwd("~/Área de trabalho/DEV/R/microenemAPI/")
+
 sample <- "000000000000000000000000000000000000000000000"
 sample <- "110111111010101111010110011101010111001101010"
-ano <- 2021
-codigo <- 916
-lingua <- 0
-area <- "CN"
+sample <- "111111111111111111111111111111111111111111111"
+ano <- 2024
+codigo <- 1395
+lingua <- 1
+area <- "LC"
 
 calc(sample = sample, area = area, ano = ano, codigo = codigo, lingua = lingua)
