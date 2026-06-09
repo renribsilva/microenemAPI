@@ -15,6 +15,7 @@
 #* @param lingua Tipo de lingua (0=Inglês, 1=Espanhol)
 #* @get /calc
 function(sample, area, ano, codigo, lingua) {
+  print(sample)
   tryCatch(
     {
       # Conversões necessárias (Plumber recebe strings)
