@@ -90,7 +90,7 @@ function(sample, area, ano, codigo, lingua) {
 
       # Prepara a sequência de erros e acertos para a iteração
       score_i <- as.numeric(strsplit(sample, "")[[1]])
-      score_i <- matrix(score_vetor, nrow = 1)
+      score_i <- matrix(score_i, nrow = 1)
 
       # Etapa de seguraça
       if (length(score_i) != 45) {
