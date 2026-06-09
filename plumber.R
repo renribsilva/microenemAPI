@@ -21,6 +21,7 @@ function(sample, area, ano, codigo, lingua) {
       ano <- as.numeric(ano)
       codigo <- as.numeric(codigo)
       lingua <- as.numeric(lingua)
+      area <- toupper(area)
 
       # Define o diretório base
       dir_base <- dirname(normalizePath("plumber.R"))
