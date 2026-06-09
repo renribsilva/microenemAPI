@@ -131,8 +131,15 @@ function(sample, area, ano, codigo, lingua) {
       pars <- pars[base::order(pars$TP_LINGUA, pars$CO_POSICAO), ]
 
       # Prepara a sequência de erros e acertos para a iteração
-      score_i <- as.numeric(strsplit(sample, "")[[1]])
-      score_i <- matrix(score_i, nrow = 1)
+      score_vetor <- as.numeric(strsplit(sample, "")[[1]])
+      if (any(is.na(score_vetor))) {
+        stop(paste(
+          "Erro no 'sample': Contem caracteres
+          invalidos que viraram NA ->",
+          sample
+        ))
+      }
+      score_i <- matrix(score_vetor, nrow = 1)
 
       # Etapa de seguraça
       if (length(score_i) != 45) {
