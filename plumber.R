@@ -38,6 +38,27 @@ function(sample, area, ano, codigo, lingua) {
 
   tryCatch(
     {
+      # --- DIAGNÓSTICO FORÇADO ---
+      # Se não for número puro, joga o erro com o nome da variável no log
+      if (!grepl("^[0-9]+$", as.character(ano))) {
+        stop(paste(
+          "Erro no parâmetro 'ano': Recebeu o valor",
+          capture.output(print(ano))
+        ))
+      }
+      if (!grepl("^[0-9]+$", as.character(codigo))) {
+        stop(paste(
+          "Erro no parâmetro 'codigo': Recebeu o valor",
+          capture.output(print(codigo))
+        ))
+      }
+      if (!grepl("^[0-9]+$", as.character(lingua))) {
+        stop(paste(
+          "Erro no parâmetro 'lingua': Recebeu o valor",
+          capture.output(print(lingua))
+        ))
+      }
+
       # Conversões necessárias (Plumber recebe strings)
       ano <- as.numeric(ano)
       codigo <- as.numeric(codigo)
