@@ -15,6 +15,27 @@
 #* @param lingua Tipo de lingua (0=Inglês, 1=Espanhol)
 #* @get /calc
 function(sample, area, ano, codigo, lingua) {
+  # Verificação da presença dos argumentos
+  if (
+    missing(sample) ||
+      is.null(sample) ||
+      sample == "" ||
+      missing(area) ||
+      is.null(area) ||
+      area == "" ||
+      missing(ano) ||
+      is.null(ano) ||
+      ano == "" ||
+      missing(codigo) ||
+      is.null(codigo) ||
+      codigo == "" ||
+      missing(lingua) ||
+      is.null(lingua) ||
+      lingua == ""
+  ) {
+    return(NULL)
+  }
+
   tryCatch(
     {
       # Conversões necessárias (Plumber recebe strings)
