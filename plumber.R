@@ -15,50 +15,8 @@
 #* @param lingua Tipo de lingua (0=Inglês, 1=Espanhol)
 #* @get /calc
 function(sample, area, ano, codigo, lingua) {
-  # Verificação da presença dos argumentos
-  if (
-    missing(sample) ||
-      is.null(sample) ||
-      sample == "" ||
-      missing(area) ||
-      is.null(area) ||
-      area == "" ||
-      missing(ano) ||
-      is.null(ano) ||
-      ano == "" ||
-      missing(codigo) ||
-      is.null(codigo) ||
-      codigo == "" ||
-      missing(lingua) ||
-      is.null(lingua) ||
-      lingua == ""
-  ) {
-    return(NULL)
-  }
-
   tryCatch(
     {
-      # --- DIAGNÓSTICO FORÇADO ---
-      # Se não for número puro, joga o erro com o nome da variável no log
-      if (!grepl("^[0-9]+$", as.character(ano))) {
-        stop(paste(
-          "Erro no parâmetro 'ano': Recebeu o valor",
-          capture.output(print(ano))
-        ))
-      }
-      if (!grepl("^[0-9]+$", as.character(codigo))) {
-        stop(paste(
-          "Erro no parâmetro 'codigo': Recebeu o valor",
-          capture.output(print(codigo))
-        ))
-      }
-      if (!grepl("^[0-9]+$", as.character(lingua))) {
-        stop(paste(
-          "Erro no parâmetro 'lingua': Recebeu o valor",
-          capture.output(print(lingua))
-        ))
-      }
-
       # Conversões necessárias (Plumber recebe strings)
       ano <- as.numeric(ano)
       codigo <- as.numeric(codigo)
@@ -131,14 +89,7 @@ function(sample, area, ano, codigo, lingua) {
       pars <- pars[base::order(pars$TP_LINGUA, pars$CO_POSICAO), ]
 
       # Prepara a sequência de erros e acertos para a iteração
-      score_vetor <- as.numeric(strsplit(sample, "")[[1]])
-      if (any(is.na(score_vetor))) {
-        stop(paste(
-          "Erro no 'sample': Contem caracteres
-          invalidos que viraram NA ->",
-          sample
-        ))
-      }
+      score_i <- as.numeric(strsplit(sample, "")[[1]])
       score_i <- matrix(score_vetor, nrow = 1)
 
       # Etapa de seguraça
