@@ -25,7 +25,7 @@ function(sample, area, ano, codigo, lingua) {
       # Conversões necessárias (Plumber recebe strings)
       ano <- as.numeric(ano)
       codigo <- as.numeric(codigo)
-      lingua <- as.numeric(lingua)
+      lingua <- if (lingua != "X") as.numeric(lingua)
       area <- toupper(area)
 
       # Define o diretório base
