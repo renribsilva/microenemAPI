@@ -16,6 +16,9 @@
 #* @get /calc
 function(sample, area, ano, codigo, lingua) {
   print(sample)
+  print(area)
+  print(codigo)
+  print(lingua)
   tryCatch(
     {
       # Conversões necessárias (Plumber recebe strings)
