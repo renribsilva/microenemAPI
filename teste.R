@@ -4,7 +4,8 @@ calc <- function(sample, area, ano, codigo, lingua) {
       # Conversões necessárias (Plumber recebe strings)
       ano <- as.numeric(ano)
       codigo <- as.numeric(codigo)
-      lingua <- as.numeric(lingua)
+      lingua <- if (lingua != "X") as.numeric(lingua)
+      area <- toupper(area)
 
       # Define o diretório base
       dir_base <- dirname(normalizePath("plumber.R"))
@@ -91,7 +92,6 @@ calc <- function(sample, area, ano, codigo, lingua) {
         ))
       }
 
-      print(pars)
       n_itens <- 45
 
       # Para cada item válido da prova, retorna um vetor com
@@ -190,15 +190,14 @@ calc <- function(sample, area, ano, codigo, lingua) {
     }
   )
 }
-
 setwd("~/Área de trabalho/DEV/R/microenemAPI/")
 
 sample <- "000000000000000000000000000000000000000000000"
 sample <- "110111111010101111010110011101010111001101010"
-sample <- "111111111111111111111111111111111111111111111"
-ano <- 2024
-codigo <- 1395
-lingua <- 1
-area <- "LC"
+sample <- "011111111111111111111111111111111111010111111"
+ano <- 2025
+codigo <- 1471
+lingua <- "X"
+area <- "MT"
 
 calc(sample = sample, area = area, ano = ano, codigo = codigo, lingua = lingua)
