@@ -190,6 +190,7 @@ calc <- function(sample, area, ano, codigo, lingua) {
     }
   )
 }
+
 setwd("~/Área de trabalho/DEV/R/microenemAPI/")
 
 sample <- "000000000000000000000000000000000000000000000"
