@@ -194,6 +194,13 @@ function(sample, area, ano, codigo, lingua) {
 
       # Retorna uma lista para o cliente
       list(
+        meta = list(
+          sample = sample,
+          area = area,
+          ano = ano,
+          codigo = codigo,
+          lingua = lingua
+        ),
         theta = theta,
         posterior = log_likelihood,
         eap = eap_transf,
