@@ -213,3 +213,8 @@ function(sample, area, ano, codigo, lingua) {
     }
   )
 }
+#* Health check para manter a aplicação ativa
+#* @get /health
+function() {
+  list(status = "ok")
+}
